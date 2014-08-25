@@ -4,14 +4,9 @@ void setup()
   // Open serial communications and wait for port to open:
   Serial.begin(9600);
   Serial1.begin(9600);
-  
-
-  Serial.println("Goodnight moon!");
-
-
 }
 
-void loop() // run over and over
+void loop() 
 {
   if (Serial1.available())
   {
@@ -19,6 +14,6 @@ void loop() // run over and over
   }
   else
   {
-        Serial.println("no data");
+        Serial.println("No data");
   }
 }
