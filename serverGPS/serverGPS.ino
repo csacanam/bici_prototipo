@@ -47,6 +47,7 @@ void readFromGPS()
    //Leer dato
     char c = Wire.read();
     //Enviar dato a la XBee
+    Serial.write(c);
     Serial1.write(c);
   }
 

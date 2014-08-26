@@ -1,19 +1,15 @@
 
 void setup()  
 {
-  // Open serial communications and wait for port to open:
-  Serial.begin(9600);
-  Serial1.begin(9600);
+  Serial.begin(9600); //Local
+  Serial1.begin(9600); //Puerto serial para la comunicacion con XBee
 }
 
 void loop() 
 {
-  if (Serial1.available())
+  while (Serial1.available())
   {
-        Serial.println(Serial1.read());
+        Serial.write(Serial1.read());
   }
-  else
-  {
-        Serial.println("No data");
-  }
+
 }
