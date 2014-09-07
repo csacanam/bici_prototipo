@@ -1,5 +1,7 @@
 //Importar libreria para usar el protocolo serial I2C
 #include <Wire.h>
+#include <string.h>
+#include <ctype.h>
 
 //Constantes
 const float pi = 3.14;
@@ -68,9 +70,31 @@ void readFromXBee()
       
       //2. Calcular distancia entre el otro nodo y este nodo
       //double distanceBetweenNodes = distanceBetweenGeoPoints(lat1,long1,lat2,long2);
-      
   }
 }
+
+/**
+Permite obtener la informacion de una cadena NMEA obtenida desde el GPS.
+El tipo de cadena mas frecuente es la GPRMC.
+
+Formato cadena GPRMC
+$GPRMC,225446,A,4916.45,N,12311.12,W,000.5,054.7,191194,020.3,E*68
+
+           225446       Time of fix 22:54:46 UTC
+           A            Navigation receiver warning A = OK, V = warning
+           4916.45,N    Latitude 49 deg. 16.45 min North
+           12311.12,W   Longitude 123 deg. 11.12 min West
+           000.5        Speed over ground, Knots
+           054.7        Course Made Good, True
+           191194       Date of fix  19 November 1994
+           020.3,E      Magnetic variation 20.3 deg East
+           *68          mandatory checksum
+**/
+void getDataFromNMEASentence(String nmeaSentece)
+{
+  
+}
+
 
 
 /*

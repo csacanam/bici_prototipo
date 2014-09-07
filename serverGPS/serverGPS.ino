@@ -1,25 +1,27 @@
-//Importar libreria para usar el protocolo serial I2C
-#include <Wire.h>
+//Libreria para crear puerto Serial virtual
+#include <SoftwareSerial.h>
+//Libreria para obtener los datos de la cadena NMEA
+#include <TinyGPS++.h>
 
-// GPS variables
-int gps_data_in;
-int inputPort = A0;
+// Serial port to GPS
+SoftwareSerial serialGPS(8, 9); // RX, TX
+
+TinyGPSPlus gps;
+
 
 void setup() 
 {
-  Wire.begin();  //Iniciar protocolo serial I2C para usar el GPS
-  Serial.begin(9600); // Empezar comunicacion serial a 9600 (USB)
-  Serial1.begin(9600); //Empezar comunicacion serial a 9600 (Comunicacion con XBee)
-  initVariables(); //Iniciar variables
-  pinMode(inputPort, INPUT); //Configurar pines
+  Serial.begin(4800); // Empezar comunicacion serial a 4800 (USB)
+  serialGPS.begin(4800); //Empezar comunicacion serial a 4800 (Comunicacion con GPS)
+  initVariables(); //Iniciar variables  
 }
+
 
 
 void loop() 
 {
   //Leer ubicacion desde el GPS
   readFromGPS();
-  delay(100); // Wait 100 milliseconds for next reading
 }
 
 
@@ -37,21 +39,22 @@ Obtener datos del GPS y enviarlos en modo broadcast
 */
 void readFromGPS() 
 {
-  gps_data_in = analogRead(inputPort);    // Leer dato desde el sensor  
-
-  // Direccion en la cual se conecta el GPS al bus de datos
-
-  Wire.requestFrom(96,100);
-  while(Wire.available())
+  while(serialGPS.available())
   {
-   //Leer dato
-    char c = Wire.read();
-    //Enviar dato a la XBee
-    Serial.write(c);
-    Serial1.write(c);
+    gps.encode(serialGPS.read());
+  }
+  
+  if(gps.location.isUpdated() && gps.speed.isUpdated())
+  {
+    Serial.print("LAT="); Serial.println(gps.location.lat());
+    Serial.print("LONG="); Serial.println(gps.location.lng());
+    //Serial.print("SPEED="); Serial.println(gps.speed.kmph());
+    Serial.println("___________________________________");
   }
 
 }
+
+
 
 
 
