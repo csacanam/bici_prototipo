@@ -23,8 +23,6 @@ String datos;
 int myAddress = 1  ; //Direccion del nodo
 int contadorDirecto = 0;
 int contadorMultisalto = 0;
-//double leaderAcc=0;
-//int lastData = 0;
 double accData [2];
 int contadorLider = 0;
 
@@ -86,6 +84,9 @@ Obtener los datos de otros nodos desde XBee
 */
 void readFromXBee()
 {
+  
+  double vecinoAddress = 0;
+  
   //Obtener informacion de otro nodo
   if (Serial1.available())
   {
@@ -99,10 +100,6 @@ void readFromXBee()
        //Si encuentra el fin de linea se obtienen los parametros de la cadena
        else
        {
-        //Datos otro nodo
-        double vecinoLat=0;
-        double vecinoLng=0;
-        double vecinoAddress=0;
          
         //Crear arreglo donde estaran los datos
         char datosArray[50];
@@ -119,21 +116,8 @@ void readFromXBee()
         
         while(parametro != 0)
         {
-          /*if (index == 0)
-          {
-            int tempLastData = 0;
-            
-            tempLastData = atoi(parametro);
-            Serial.println(tempLastData);
-            
-            if(tempLastData != lastData)
-            {
-              lastData = tempLastData;
-              newData = true; 
-            }
-              
-          }
-          else*/ if (index == 0)
+          
+          if (index == 0)
           {
             vecinoAddress = atof(parametro);
             if(vecinoAddress == 0)
@@ -165,32 +149,33 @@ void readFromXBee()
           parametro = strtok(0,";");
           index++; 
         }
-
-          //Serial.print("ID: ");
-          //Serial.print(lastData);
-          Serial.print("Address: ");
-          Serial.print(vecinoAddress);
-          Serial.print("; Acc 0: ");
-          Serial.print(accData[0]);
-          Serial.print("; Acc 1: ");
-          Serial.print(accData[1]);
-          Serial.print(";Directo: ");
-          Serial.print(contadorDirecto);
-          Serial.print(";Multisalto;");
-          Serial.print(contadorMultisalto);
-          Serial.println();
-          Serial.println("-------------------------------");
-          Serial.print('\n');        
         
-          delay(800);
-       
-       
-          sendBeacon();
+        Serial.print("Address: ");
+        Serial.print(vecinoAddress);
+        Serial.print("; Acc 0: ");
+        Serial.print(accData[0]);
+        Serial.print("; Acc 1: ");
+        Serial.print(accData[1]);
+        Serial.print(";Directo: ");
+        Serial.print(contadorDirecto);
+        Serial.print(";Multisalto;");
+        Serial.print(contadorMultisalto);
+        Serial.println();
+        Serial.println("-------------------------------");
+        Serial.print('\n');   
+        
+         // delay(800);
+             
+         sendBeacon();
+        
+
 
         
        }
 
   }
+
+
   
 
 }
@@ -208,7 +193,7 @@ void sendBeacon()
           dtostrf(accData[0], 2, 5, leaderAccString);
     }
    
-    Serial1.println(String(myAddress)+";"+String(leaderAccString)+"\n");
+    Serial1.println(String(myAddress)+";"+String(leaderAccString));
 
 
 }
