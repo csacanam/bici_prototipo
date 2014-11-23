@@ -120,7 +120,7 @@ void sendBeacon()
     dtostrf(myAcc,2,5,myAccString);
     
     
-    Serial1.println(String(myAddress) + ";" + String(myAccString) + "\n");
+    Serial1.println(String(myAddress) + ";" + String(myAccString));
     
     Serial.print(myAddress);
     Serial.print(";");
