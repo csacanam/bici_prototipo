@@ -115,29 +115,36 @@ void readFromGPS()
 
 }
 
-ISR(TIMER1_COMPA_vect) {//Interrupt at freq of 1kHz to measure reed switch
+ISR(TIMER1_COMPA_vect) 
+{//Interrupt at freq of 1kHz to measure reed switch
   reedVal = digitalRead(reed);//get val of A0
-  if (reedVal){//if reed switch is closed
-    if (reedCounter == 0){//min time between pulses has passed
+  if (reedVal)
+  {//if reed switch is closed
+    if (reedCounter == 0)
+    {//min time between pulses has passed
       mph = (56.8*float(circumference))/float(timer);//calculate miles per hour
       timer = 0;//reset timer
       reedCounter = maxReedCounter;//reset reedCounter
     }
-    else{
+    else
+    {
       if (reedCounter > 0){//don't let reedCounter go negative
         reedCounter -= 1;//decrement reedCounter
       }
     }
   }
-  else{//if reed switch is open
+  else
+  {//if reed switch is open
     if (reedCounter > 0){//don't let reedCounter go negative
       reedCounter -= 1;//decrement reedCounter
     }
   }
-  if (timer > 2000){
+  if (timer > 2000)
+  {
     mph = 0;//if no new pulses from reed switch- tire is still, set mph to 0
   }
-  else{
+  else
+  {
     timer += 1;//increment timer
   } 
 }
