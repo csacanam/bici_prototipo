@@ -5,20 +5,10 @@ NODO SEGUIDOR
 
 */
 
-
 //Libreria para crear puerto Serial virtual
 #include <SoftwareSerial.h>
-//Libreria para obtener los datos de la cadena NMEA
-#include <TinyGPS++.h>
-
-// Serial port para el GPS
-SoftwareSerial serialGPS(8, 9); // RX, TX
-
-TinyGPSPlus gps;
 
 //Local variables
-double myLat; //Mi latitud
-double myLng; //Mi longitud
 String datos;
 int myAddress = 1  ; //Direccion del nodo
 int contadorDirecto = 0;
@@ -29,55 +19,14 @@ int contadorLider = 0;
 void setup()  
 {
   Serial.begin(9600); //Local
-  serialGPS.begin(4800); //GPS
   Serial1.begin(9600); //XBee
-  initVariables();
-}
-
-/*
-Se inician las variables
-*/
-void initVariables()
-{
-  myLat = 0;
-  myLng = 0;
 }
 
 void loop() 
 {
-  //Obtener mi ubicacion desde el GPS
-   //readFromGPS();
-  
   //Obtener datos de los otros nodos desde XBee
-  readFromXBee();
-  
-  
-  
+  readFromXBee();  
 }
-
-/*
-Obtener datos del GPS y enviarlos en modo broadcast
-*/
-void readFromGPS() 
-{
-  while(serialGPS.available())
-  {
-    gps.encode(serialGPS.read());
-  }
-  
-  if(gps.location.isUpdated())
-  {
-    myLat = gps.location.lat();
-    myLng = gps.location.lng();
-    Serial.print(myLat);
-    Serial.print(myLng);
-    Serial.println();
-    
-    sendBeacon();
-  }
-
-}
-
 
 /*
 Obtener los datos de otros nodos desde XBee
@@ -109,7 +58,7 @@ void readFromXBee()
         datos = ""; 
         
       //1. Obtener datos del otro nodo
-        int index = 0; //Indice del parametro (0-Lat, 1-Lng)
+        int index = 0; //Indice del parametro (0-Address, 1-Leader Acceleration)
         char *parametro = strtok(datosArray, ";"); //Dividir cuando encuentre un ;
         
         int posData = -1;
@@ -150,6 +99,7 @@ void readFromXBee()
           index++; 
         }
         
+        //Imprimir por consola
         Serial.print("Address: ");
         Serial.print(vecinoAddress);
         Serial.print("; Acc 0: ");
@@ -163,14 +113,9 @@ void readFromXBee()
         Serial.println();
         Serial.println("-------------------------------");
         Serial.print('\n');   
-        
-         // delay(800);
-             
+          
+        //Enviar paquete beacon           
          sendBeacon();
-        
-
-
-        
        }
 
   }
@@ -194,8 +139,6 @@ void sendBeacon()
     }
    
     Serial1.println(String(myAddress)+";"+String(leaderAccString));
-
-
 }
   
 
