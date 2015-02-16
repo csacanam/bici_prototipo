@@ -6,6 +6,7 @@
 
 //Dato que se envia al servidor
 double mySpeed = 128;
+int myAddress = 0;
 
 void setup()
 {
@@ -30,7 +31,7 @@ void sendBeacon()
   dtostrf(mySpeed,2,5,mySpeedString);
   
   //Enviar datos por XBee
-  Serial1.println(mySpeedString);
+  Serial1.println(String(myAddress) + ";" + mySpeedString);
   
 }
 

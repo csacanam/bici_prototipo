@@ -10,6 +10,7 @@ double mySpeed = 120;
 double objSpeed = 0;
 String datos;
 char floatBuffer[64];
+int myAddress = 1;
 
 
 void setup()
@@ -21,6 +22,7 @@ void setup()
 void loop()
 {
   readFromXBee();
+  sendBeacon();
 }
 
 /*
@@ -53,8 +55,19 @@ void readFromXBee()
       Serial.println(differenceString);
       
     }
-    
   }
+}
 
+//Enviar informacion cada segundo
+void sendBeacon()
+{
+  
+  //Convertir velocidad de double a string
+  char mySpeedString[12];
+  
+  dtostrf(mySpeed,2,5,mySpeedString);
+  
+  //Enviar datos por XBee
+  Serial1.println(String(myAddress) + ";" + mySpeedString);
   
 }
