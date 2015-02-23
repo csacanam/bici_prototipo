@@ -35,20 +35,29 @@ void readFromXBee()
 
   if(Serial1.available())
   {
+    
     char c = Serial1.read();
+    
+    
+    //Serial.print(c);
 
     if(c != '\n')
     {
       datos+=c;
+      // guardamos lo que llega por c en la cadena 'datos' hasta encontrar  un salto de linea
+      //para seguir
     }
     else
     { 
-
+     
       //Crear arreglo donde estaran los datos
       char datosArray[50];
 
-      //Convertir de String a double
-      datos.toCharArray(floatBuffer, sizeof(floatBuffer));
+      //Convertir de String a double (correccion, de String a char array)
+     // datos.toCharArray(floatBuffer, sizeof(floatBuffer)); (????)
+     datos.toCharArray(datosArray, sizeof(datosArray));
+     
+     Serial.println(datos);
 
       //Limpiar cadena
       datos = ""; 
@@ -81,6 +90,7 @@ void readFromXBee()
         index++; 
       }
 
+
       //Imprimir por consola
       Serial.print("Address: ");
       Serial.print(posData);
@@ -95,15 +105,16 @@ void readFromXBee()
 
       //***** enviar datos a B por XBee
       Serial1.println(speedData[0]);
-
+/*
       //Imprimir en consola
       Serial.println(speedData[0]);
-
+*/
     }
 
   }
 
 }
+
 
 
 
