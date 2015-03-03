@@ -80,7 +80,7 @@ void readFromXBee()
         {
           double tempSpeed = 0;
           tempSpeed = atof(parametro);
-          if(tempSpeed != 0 && posData != -1)
+          if(posData != -1)
           {
             // speedData[velocidad noda A, velocidad nodo B]
             speedData[posData] = tempSpeed;              

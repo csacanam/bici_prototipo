@@ -60,9 +60,11 @@ void sendBeacon()
 }
 
 
-void readSpeed(){
+void readSpeed()
+{
   //if wheel turns
-  if(analogRead(A0)>=300){
+  if(analogRead(A0)>=300)
+  {
     //number of turns++
     impulses++;
 
@@ -75,7 +77,8 @@ void readSpeed(){
     delay(100);
   }
 
-  if((millis()-previous) > 2000){
+  if((millis()-previous) > 2000)
+  {
     speedometer = 0;
   }
 
