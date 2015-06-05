@@ -1,17 +1,25 @@
+#include <XBee.h>
+
 /*
   RED 3 NODOS - PROYECTO BICICLETAS
  
  SERVER
  */
+ 
+//XBee
+XBee xbee = XBee();
+XBeeResponse response = XBeeResponse();
+
+//Objetos de respuesta reusables 
+Rx16Response rx16 = Rx16Response();
+Rx64Response rx64 = Rx64Response();
+
+//Informacion
+uint8_t option = 0;
+uint8_t data = 0;
 
 //Velocidad objetivo que se recibe del cliente A
-double objSpeed = 0;
-String datos;
-char floatBuffer[64];
-float velocidadA, velocidadB;
-double vecinoAddress;
-int  posData= -1;
-double speedData [2];
+float velocidadA = 0;
 
 
 
@@ -19,6 +27,7 @@ void setup()
 {
   Serial.begin(9600); //Local
   Serial1.begin(9600); //XBee
+  xbee.setSerial(Serial1);
 }
 
 void loop()
@@ -32,85 +41,41 @@ Obtener la informacion Client A
  */
 void readFromXBee()
 {
+  xbee.readPacket();
 
-  if(Serial1.available())
+  //Hay datos disponibles
+  if(xbee.getResponse().isAvailable())
   {
-    
-    char c = Serial1.read();
-    
-    
-    //Serial.print(c);
-
-    if(c != '\n')
+    //Verificar que proviene de la red ZigBee
+    if(xbee.getResponse().getApiId() == RX_16_RESPONSE || xbee.getResponse().getApiId() == RX_64_RESPONSE)
     {
-      datos+=c;
-      // guardamos lo que llega por c en la cadena 'datos' hasta encontrar  un salto de linea
-      //para seguir
-    }
-    else
-    { 
-     
-      //Crear arreglo donde estaran los datos
-      char datosArray[50];
-
-      //Convertir de String a double (correccion, de String a char array)
-     // datos.toCharArray(floatBuffer, sizeof(floatBuffer)); (????)
-     datos.toCharArray(datosArray, sizeof(datosArray));
-     
-     Serial.println(datos);
-
-      //Limpiar cadena
-      datos = ""; 
-
-      int index = 0; //Indice del parametro (0-Address, 1-Leader Acceleration)
-      char *parametro = strtok(datosArray, ";"); //Dividir cuando encuentre un ;
-
-      posData = -1;
-
-      // Para partir datos en partes
-
-      while(parametro != 0)
+      //Respuesta de 16 bits
+      if(xbee.getResponse().getApiId() == RX_16_RESPONSE)
       {
-        if (index == 0)
-        {
-          // verificamos el tag del nodo y lo guardamos en posData
-          posData = atoi(parametro);
-        }
-        else if (index == 1)
-        {
-          double tempSpeed = 0;
-          tempSpeed = atof(parametro);
-          if(posData != -1)
-          {
-            // speedData[velocidad noda A, velocidad nodo B]
-            speedData[posData] = tempSpeed;              
-          }
-        }
-        parametro = strtok(0,";");
-        index++; 
+         xbee.getResponse().getRx16Response(rx16);
+         option = rx16.getOption();
+         data = rx16.getData(0); 
       }
-
-
-      //Imprimir por consola
-      Serial.print("Address: ");
-      Serial.print(posData);
-      Serial.print("; Speed A: ");
-      Serial.print(speedData[0]);
-      Serial.print("; Speed B: ");
-      Serial.print(speedData[1]);
-      Serial.println();
-      Serial.println("-------------------------------");
-      Serial.print('\n'); 
-
-
-      //***** enviar datos a B por XBee
-      Serial1.println(speedData[0]);
-/*
-      //Imprimir en consola
-      Serial.println(speedData[0]);
-*/
+      //Respuesta de 64 bits
+      else
+      {
+         xbee.getResponse().getRx64Response(rx64);
+         option = rx64.getOption();
+         data = rx64.getData(0);
+      }
+      
+      Serial.println(data);
+    }
+    //No era informacion que se esperaba
+    else 
+    {
+      
     }
 
+  }
+  //Error leyendo el paquete
+  else if (xbee.getResponse().isError())
+  {
   }
 
 }

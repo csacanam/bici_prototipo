@@ -1,24 +1,35 @@
+#include <XBee.h>
+
 /*
   RED 3 NODOS - PROYECTO BICICLETAS
  
  CLIENT A
  */
+ 
+//XBee
+XBee xbee = XBee();
+//Arreglo donde se guarda el dato que se envia al lider
+uint8_t payload[4] = {0, 0, 0, 0};
+//Apuntador para adicionar un float al arreglo payload
+uint8_t payloadPointer = 0;
 
-//Dato que se envia al servidor
-double mySpeed = 128;
-int myAddress = 0;
+//Direccion del coordinador SH + SL
+XBeeAddress64 addr64 = XBeeAddress64(0x0013A200, 0x408BE3EB);
+//Informacion (payload + address) para enviar al coordinador
+Tx64Request tx = Tx64Request(addr64, payload, sizeof(payload));
 
+//Estado de la respuesta que viene del coordinador
+TxStatusResponse txStatus = TxStatusResponse();
 
 // variables for calculate the speed
 long previous, time, impulses;
 float speedometer, circuit;
 
-
-
 void setup()
 {
   Serial.begin(9600); //Local
   Serial1.begin(9600); //XBee
+  xbee.setSerial(Serial1);
   /*
   Set A0 analog port, wish is where the speed sensor
    is read. Is set has input of data. The sensor will
@@ -39,24 +50,53 @@ void loop()
 {
   readSpeed();
   sendBeacon();
-  //delay(1000);
+  
+  //Despues de enviar una solicitud tx se espera una respuesta de estado
+  //Se espera hasta 5 segundos por la respuesta 
+  if(xbee.readPacket(5000))
+  {
+    //Debe ser un estado tx de una red ZigBee
+    if(xbee.getResponse().getApiId() == TX_STATUS_RESPONSE)
+    {
+      //Estado exitoso
+      if(txStatus.getStatus() == SUCCESS)
+      {
+      }
+      //El coordinador no recibio el paquete
+      else
+      {
+        
+      }
+    }
+  }
+  //Error leyendo el paquete
+  else if (xbee.getResponse().isError())
+  {
+    
+  }
+  //El XBee local no recibio una respuesta de estado tx a tiempo
+  //Los radios no estan configurados apropiadamente o estan desconectados
+  else
+  {
+    
+  }
+  
+  delay(1000);
+  
 }
 
 
 //Enviar informacion cada segundo
 void sendBeacon()
 {
-
-  //Convertir velocidad de double a string
-  char mySpeedString[12];
-
-  dtostrf(speedometer,2,5,mySpeedString);
-
-  //Enviar datos por XBee
-  Serial1.println(String(myAddress) + ";" + mySpeedString);
-
+  //Agregar dato al payload
+  addToPayload(10);
   
-
+  //Enviar datos por XBee
+  xbee.send(tx);
+  
+  //Limpiar payload
+  clearPayload();
 }
 
 
@@ -83,6 +123,26 @@ void readSpeed()
   }
 
 
+}
+
+//Permite agregar un valor float a un payload
+void addToPayload(float value)
+{
+  byte * b = (byte *) &value;
+  payload[payloadPointer++] = b[0];
+  payload[payloadPointer++] = b[1];
+  payload[payloadPointer++] = b[2];
+  payload[payloadPointer++] = b[3];
+}
+
+//Permite eliminar lo que haya en el payload
+void clearPayload()
+{
+   payloadPointer = 0;
+   payload[0] = 0;
+   payload[1] = 0;
+   payload[2] = 0;
+   payload[3] = 0; 
 }
 
 
